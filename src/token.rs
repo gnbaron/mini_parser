@@ -1,6 +1,16 @@
 use std::ops::Range;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum TokenType {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Number,
+    Unknown,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Token {
     token_type: TokenType,
     start_offset: usize,
@@ -15,13 +25,4 @@ impl Token {
             end_offset: span.end,
         }
     }
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum TokenType {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Number,
 }
