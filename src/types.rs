@@ -21,5 +21,7 @@ impl Token {
 pub enum TokenType {
     Add,
     Sub,
+    Mul,
+    Div,
     Number,
 }
