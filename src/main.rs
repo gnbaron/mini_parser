@@ -8,7 +8,7 @@ mod state;
 mod token;
 
 fn main() {
-    let input = "3 * 2.5 | 1";
+    let input = "1 + 2 && 2.5";
     let mut errors = vec![];
     let stream = ParserStream {
         input: Located::new(&input),
