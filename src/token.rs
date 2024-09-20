@@ -1,5 +1,7 @@
 use std::ops::Range;
 
+use winnow::stream::ContainsToken;
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum TokenType {
     Add,
@@ -12,9 +14,9 @@ pub enum TokenType {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct Token {
-    token_type: TokenType,
-    start_offset: usize,
-    end_offset: usize,
+    pub token_type: TokenType,
+    pub start_offset: usize,
+    pub end_offset: usize,
 }
 
 impl Token {
@@ -24,5 +26,16 @@ impl Token {
             start_offset: span.start,
             end_offset: span.end,
         }
+    }
+
+    pub fn text<'a>(&self, input: &'a str) -> &'a str {
+        &input[self.start_offset as usize..self.end_offset as usize]
+    }
+}
+
+impl ContainsToken<Token> for TokenType {
+    #[inline(always)]
+    fn contains_token(&self, token: Token) -> bool {
+        *self == token.token_type
     }
 }
