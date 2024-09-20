@@ -1,5 +1,3 @@
-use winnow::{Located, Stateful};
-
 use crate::error::ParserError;
 
 #[derive(Debug)]
@@ -12,5 +10,3 @@ impl<'a> ParserState<'a> {
         self.errors.push(error);
     }
 }
-
-pub type ParserStream<'a> = Stateful<Located<&'a str>, ParserState<'a>>;

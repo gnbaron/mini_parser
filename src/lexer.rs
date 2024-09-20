@@ -3,22 +3,29 @@ use winnow::{
     combinator::{alt, delimited, dispatch, eof, fail, opt, peek, preceded, repeat_till, trace},
     stream::Location,
     token::any,
-    PResult, Parser,
+    Located, PResult, Parser, Stateful,
 };
 
 use crate::{
     error::{expected, ParserError, ParserErrorType},
-    state::ParserStream,
+    state::ParserState,
     token::{Token, TokenType},
 };
 
-pub fn lexer(input: &mut ParserStream) -> PResult<Vec<Token>> {
+type Stream<'a> = Stateful<Located<&'a str>, ParserState<'a>>;
+
+pub fn lex<'a>(input: &'a str, state: ParserState<'a>) -> PResult<Vec<Token>> {
+    let mut stream = Stream {
+        input: Located::new(&input),
+        state,
+    };
+
     repeat_till(0.., token, eof)
-        .parse_next(input)
+        .parse_next(&mut stream)
         .and_then(|(tokens, _)| Ok(tokens))
 }
 
-fn token(input: &mut ParserStream) -> PResult<Token> {
+fn token(input: &mut Stream) -> PResult<Token> {
     match trace("token", known_token).parse_next(input) {
         Ok(token) => Ok(token),
         Err(_) => {
@@ -37,12 +44,12 @@ fn token(input: &mut ParserStream) -> PResult<Token> {
     }
 }
 
-fn known_token(input: &mut ParserStream) -> PResult<Token> {
+fn known_token(input: &mut Stream) -> PResult<Token> {
     let token = alt((number, operator, fail.context(expected("a valid token"))));
     trace("known_token", delimited(multispace0, token, multispace0)).parse_next(input)
 }
 
-fn unknown_token(input: &mut ParserStream) -> PResult<String> {
+fn unknown_token(input: &mut Stream) -> PResult<String> {
     let token_or_eof = alt((peek(known_token).void(), eof.void()));
 
     trace("unknown_token", repeat_till(0.., any, token_or_eof))
@@ -50,7 +57,7 @@ fn unknown_token(input: &mut ParserStream) -> PResult<String> {
         .and_then(|(unexpected_chars, _)| Ok(unexpected_chars))
 }
 
-fn number(input: &mut ParserStream) -> PResult<Token> {
+fn number(input: &mut Stream) -> PResult<Token> {
     trace(
         "number",
         (digit1, opt(preceded('.', digit1)))
@@ -63,7 +70,7 @@ fn number(input: &mut ParserStream) -> PResult<Token> {
     .parse_next(input)
 }
 
-fn operator(input: &mut ParserStream) -> PResult<Token> {
+fn operator(input: &mut Stream) -> PResult<Token> {
     trace(
         "operator",
         dispatch! {peek(any);
