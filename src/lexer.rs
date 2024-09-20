@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use winnow::{
     ascii::{digit1, multispace0},
     combinator::{alt, delimited, dispatch, eof, fail, opt, peek, preceded, repeat_till, trace},
@@ -12,9 +14,9 @@ use crate::{
     token::{Token, TokenType},
 };
 
-type Stream<'a> = Stateful<Located<&'a str>, ParserState<'a>>;
+type Stream<'a> = Stateful<Located<&'a str>, Rc<RefCell<ParserState<'a>>>>;
 
-pub fn lex<'a>(input: &'a str, state: ParserState<'a>) -> PResult<Vec<Token>> {
+pub fn lex<'a>(input: &'a str, state: Rc<RefCell<ParserState<'a>>>) -> PResult<Vec<Token>> {
     let mut stream = Stream {
         input: Located::new(&input),
         state,
@@ -37,7 +39,7 @@ fn token(input: &mut Stream) -> PResult<Token> {
 
             let message = format!("Unexpected character(s): {unexpected_chars}");
             let error = ParserError::new(ParserErrorType::Lex, message, offset.clone());
-            input.state.add_error(error);
+            input.state.borrow_mut().add_error(error);
 
             Ok(Token::from((TokenType::Unknown, offset)))
         }

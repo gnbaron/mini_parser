@@ -2,7 +2,8 @@ use crate::error::ParserError;
 
 #[derive(Debug)]
 pub struct ParserState<'a> {
-    pub errors: &'a mut Vec<ParserError>,
+    pub input_text: &'a str,
+    pub errors: Vec<ParserError>,
 }
 
 impl<'a> ParserState<'a> {
