@@ -2,12 +2,12 @@ use std::{ops::Range, usize};
 
 use winnow::error::{StrContext, StrContextValue};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ParserErrorType {
     Lex,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ParserError {
     error_type: ParserErrorType,
     message: String,

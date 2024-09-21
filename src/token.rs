@@ -12,7 +12,7 @@ pub enum TokenType {
     Unknown,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Debug, Clone, PartialEq, Eq)]
 pub struct Token {
     pub token_type: TokenType,
     pub start_offset: usize,
@@ -20,7 +20,7 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn from((token_type, span): (TokenType, Range<usize>)) -> Token {
+    pub fn new((token_type, span): (TokenType, Range<usize>)) -> Token {
         Token {
             token_type,
             start_offset: span.start,

@@ -7,6 +7,13 @@ pub struct ParserState<'a> {
 }
 
 impl<'a> ParserState<'a> {
+    pub fn new(input_text: &'a str) -> Self {
+        Self {
+            input_text,
+            errors: vec![],
+        }
+    }
+
     pub fn add_error(&mut self, error: ParserError) {
         self.errors.push(error);
     }
